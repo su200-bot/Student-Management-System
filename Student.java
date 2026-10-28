@@ -1,11 +1,10 @@
-/**
+ /**
  * Student - represents one student and his/her marks in three subjects.
  * Demonstrates: encapsulation (private attributes + getters/setters),
  * constructor overloading with the this keyword, method overloading (setMarks),
  * an array attribute (marks), loops, if-else-if, switch and the ? : operator.
  */
 public class Student {
-
     // ----- Constants (static final) -----
     public static final int NUM_SUBJECTS = 3;
     public static final double PASS_MARK = 50.0;
@@ -16,7 +15,6 @@ public class Student {
     private int age;
     private String courseCode;
     private double[] marks;          // marks in the three subjects (0 - 100)
-
     // ----- Constructors -----
 
     /** Default constructor: assigns default values (calls the other constructor using this). */
