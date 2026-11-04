@@ -72,7 +72,14 @@ public class StudentManager {
         return -1;
     }
 
-    /** Replaces the details of the student who has the same registration number. */
+   /**
+ * Updates the details of an existing student.
+ * Locates the student using their registration number
+ * and replaces their stored information.
+ *
+ * @param updated the new student information
+ * @return true if the student was updated, otherwise false
+ */
     public boolean updateStudent(Student updated) {
         Student existing = findStudent(updated.getRegNo());
         if (existing == null) {
@@ -85,7 +92,13 @@ public class StudentManager {
         return true;
     }
 
-    /** Deletes a student and shifts the remaining students one place to the left. */
+    /**
+ * Deletes a student using their registration number.
+ * Shifts the remaining student records to fill the empty position.
+ *
+ * @param regNo the registration number of the student to delete
+ * @return true if deletion succeeds, otherwise false
+ */
     public boolean deleteStudent(String regNo) {
         int index = findStudentIndex(regNo);
         if (index == -1) {
