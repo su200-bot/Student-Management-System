@@ -1,7 +1,13 @@
 /**
- * StudentManager - stores and manages all Student and Course objects.
- * Demonstrates: arrays of objects (Student[] and Course[]), loops, method
- * overloading (searchStudents), recursion (sumOfAverages), sorting, encapsulation.
+ * Manages student and course records within the academic system.
+ *
+ * Responsibilities include:
+ * - Registering, updating and deleting students.
+ * - Searching and sorting student records.
+ * - Managing course information.
+ * - Calculating class statistics and grade distributions.
+ *
+ * Uses arrays, loops, method overloading, recursion and sorting algorithms.
  */
 public class StudentManager {
 
