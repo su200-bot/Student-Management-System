@@ -55,9 +55,9 @@
 %-------------------------------------------------------------------------------
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\footnotesize\textit{CSC 1102: Structured and Object-Oriented Programming --- Practical Project}}
+\fancyhead[L]{\footnotesize\textit{CSC 1102: Structured and Object-Oriented Programming}}
 \fancyhead[R]{\footnotesize\textit{Student Management System}}
-\fancyfoot[L]{\footnotesize\textit{Makerere University --- College of Computing and Information Sciences (CoCIS)}}
+\fancyfoot[L]{\footnotesize\textit{Makerere University, College of Computing and Information Sciences (CoCIS)}}
 \fancyfoot[R]{\footnotesize\textbf{Page \thepage}}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0.4pt}
@@ -88,11 +88,9 @@
     {\large\bfseries SCHOOL OF COMPUTING AND INFORMATICS TECHNOLOGY}\\[0.2cm]
     {\large\bfseries DEPARTMENT OF COMPUTER SCIENCE}\\[0.85cm]
 
-    \textcolor{muknavy}{\rule{\textwidth}{1.6pt}}\\[0.4cm]
     {\LARGE\bfseries\textcolor{muknavy}{STUDENT MANAGEMENT SYSTEM}}\\[0.28cm]
     {\large\bfseries CSC 1102: Structured and Object-Oriented Programming}\\[0.18cm]
-    {\normalsize\bfseries Practical Examination Project Report \& System Analysis}\\[0.22cm]
-    \textcolor{muknavy}{\rule{\textwidth}{1.6pt}}\\[1.1cm]
+    {\normalsize\bfseries Practical Examination Project Report \& System Analysis}\\[0.9cm]
 
     {\large\bfseries GROUP DETAILS (AFTERNOON / EVENING PROGRAMME)}\\[0.35cm]
     {\normalsize
@@ -113,36 +111,33 @@
         5 & ANYINE ELIZABETH & 25/U/29497/EVE & Member \\
         \hline
     \end{tabular}}
-    \renewcommand{\arraystretch}{1.0}\\[1.1cm]
+    \renewcommand{\arraystretch}{1.0}\\[0.95cm]
 
     {\normalsize
     \textbf{GitHub Repository:}\\[0.15cm]
     \url{https://github.com/su200-bot/Student-Management-System}\\[0.65cm]
     \textbf{Submitted To:} Dr.\ Lillian Muyama\\
-    Department of Computer Science, Makerere University}
+    Department of Computer Science, Makerere University}\\[0.65cm]
 
-    \vfill
     {\large\bfseries Academic Year 2025/2026}
 \end{titlepage}
 
 %===============================================================================
-% PAGE 1: ABSTRACT, TABLE OF CONTENTS, & SECTION 1 (SYSTEM OVERVIEW)
+% PAGE 1: EXECUTIVE SUMMARY, TABLE OF CONTENTS, & SECTION 1 (SYSTEM OVERVIEW)
 %===============================================================================
 \clearpage
 \pagenumbering{arabic}
 \setcounter{page}{1}
 
-\section*{Executive Summary / Abstract}
-\addcontentsline{toc}{section}{Executive Summary / Abstract}
+\section*{Executive Summary}
+\addcontentsline{toc}{section}{Executive Summary}
 {\small
 The \textbf{Student Management System} is a modular desktop application developed in Java using the Swing graphical user interface (GUI) framework for the \textit{CSC 1102: Structured and Object-Oriented Programming} practical examination at Makerere University. Designed to streamline academic record administration, the system enables university administrators to register course units, enroll students, record marks across three assessments, and automatically compute aggregate totals, arithmetic averages, Makerere University letter grades (\texttt{A} to \texttt{F}), qualitative remarks, and \texttt{PASS}/\texttt{FAIL} statuses. The architecture comprises six cohesive classes (\texttt{Main}, \texttt{Student}, \texttt{Course}, \texttt{StudentManager}, \texttt{Validator}, and \texttt{StudentManagementGUI}) spanning 1,236 lines of documented Java code. All records are managed in memory using fixed-capacity object arrays (\texttt{Student[100]} and \texttt{Course[20]}), demonstrating strict encapsulation, constructor chaining, method overloading, input sanitization, linear search, Bubble Sort, left-shift deletion, and tail recursion.\par}
 
 \vspace{-0.12cm}
 {\footnotesize\setlength{\parskip}{0pt}\setstretch{0.78}
 \tableofcontents}
-\vspace{0.06cm}
-\hrule
-\vspace{0.08cm}
+\vspace{0.1cm}
 
 \section{Description of the Application}
 
@@ -310,7 +305,7 @@ The project was compiled and executed using OpenJDK 23. All unit and integration
 8 & \texttt{25/U/00108/EVE} & Kiiza Samuel & 21 & CSC1105 & 30 & 41 & 35 & 106 & 35.3 (35.33) & F \ (Fail) & FAIL \\
 \midrule
 \multicolumn{12}{@{}l@{}}{\textbf{Verified Statistics:} Students: \textbf{8} $|$ Recursive Class Avg: \textbf{64.50} $|$ Highest: \textbf{90.67} (Atim Patricia) $|$ Lowest: \textbf{35.33} (Kiiza Samuel)} \\
-\multicolumn{12}{@{}l@{}}{\textbf{Pass/Fail \& Grades:} Passed: \textbf{6} (75\%), Failed: \textbf{2} (25\%) $|$ Distribution --- A: 2, B+: 0, B: 1, C+: 1, C: 1, D+: 1, D: 0, E: 1, F: 1} \\
+\multicolumn{12}{@{}l@{}}{\textbf{Pass/Fail \& Grades:} Passed: \textbf{6} (75\%), Failed: \textbf{2} (25\%) $|$ Distribution: A: 2, B+: 0, B: 1, C+: 1, C: 1, D+: 1, D: 0, E: 1, F: 1} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -320,7 +315,7 @@ The project was compiled and executed using OpenJDK 23. All unit and integration
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.68\textwidth]{images/gui_students.png}
-    \caption{\textbf{Students Tab:} Live execution showing the student details form, action/search/sort buttons, and the student registry table with row 3 (\texttt{25/U/00103/EVE --- Nakato Ruth}) selected and loaded into the form.}
+    \caption{\textbf{Students Tab:} Live execution showing the student details form, action/search/sort buttons, and the student registry table with row 3 (\texttt{25/U/00103/EVE}, Nakato Ruth) selected and loaded into the form.}
     \label{fig:students_gui}
 \end{figure}
 
