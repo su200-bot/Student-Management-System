@@ -12,9 +12,17 @@
 public class StudentManager {
 
     // ----- Constants -----
-    public static final int MAX_STUDENTS = 100;
-    public static final int MAX_COURSES = 20;
-    private static final String[] GRADE_LABELS = { "A", "B+", "B", "C+", "C", "D+", "D", "E", "F" };
+    // Maximum number of students the system can register.
+public static final int MAX_STUDENTS = 100;
+
+// Maximum number of courses the system can store.
+public static final int MAX_COURSES = 20;
+
+// Grade labels used when generating the class grade distribution.
+private static final String[] GRADE_LABELS = {
+    "A", "B+", "B", "C+", "C", "D+", "D", "E", "F"
+};
+   
 
     // ----- Attributes: arrays that hold the objects -----
     private Student[] students;
