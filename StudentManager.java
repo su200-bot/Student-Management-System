@@ -1,54 +1,28 @@
 /**
- * Manages student and course records within the academic system.
- *
- * Responsibilities include:
- * - Registering, updating and deleting students.
- * - Searching and sorting student records.
- * - Managing course information.
- * - Calculating class statistics and grade distributions.
- *
- * Uses arrays, loops, method overloading, recursion and sorting algorithms.
+ * StudentManager - stores and manages all Student and Course objects.
+ * Demonstrates: arrays of objects (Student[] and Course[]), loops, method
+ * overloading (searchStudents), recursion (sumOfAverages), sorting, encapsulation.
  */
 public class StudentManager {
 
     // ----- Constants -----
-    // Maximum number of students the system can register.
-public static final int MAX_STUDENTS = 100;
-
-// Maximum number of courses the system can store.
-public static final int MAX_COURSES = 20;
-
-// Grade labels used when generating the class grade distribution.
-private static final String[] GRADE_LABELS = {
-    "A", "B+", "B", "C+", "C", "D+", "D", "E", "F"
-};
-   
+    public static final int MAX_STUDENTS = 100;
+    public static final int MAX_COURSES = 20;
+    private static final String[] GRADE_LABELS = { "A", "B+", "B", "C+", "C", "D+", "D", "E", "F" };
 
     // ----- Attributes: arrays that hold the objects -----
-    // Array that stores registered student objects.
-private Student[] students;
+    private Student[] students;
+    private int studentCount;
+    private Course[] courses;
+    private int courseCount;
 
-// Keeps track of the number of students currently registered.
-private int studentCount;
-
-// Array that stores available course objects.
-private Course[] courses;
-
-// Keeps track of the number of courses currently registered.
-private int courseCount;
-
-    /**
- * Initializes the StudentManager.
- * Creates arrays for storing students and courses
- * and sets their initial counts to zero.
- */
-public StudentManager() {
-    students = new Student[MAX_STUDENTS];
-    studentCount = 0;
-    courses = new Course[MAX_COURSES];
-    courseCount = 0;
-}
-    
+    /** Creates empty arrays. */
+    public StudentManager() {
+        students = new Student[MAX_STUDENTS];
+        studentCount = 0;
+        courses = new Course[MAX_COURSES];
+        courseCount = 0;
+    }
 
     // =====================================================================
     //  STUDENT OPERATIONS
@@ -62,7 +36,14 @@ public StudentManager() {
         return studentCount >= MAX_STUDENTS;
     }
 
-    /** Adds a student. Returns false if the array is full or the registration number already exists. */
+   /**
+ * Registers a new student in the system.
+ * Checks whether the student array is full or the registration
+ * number already exists before adding the student.
+ *
+ * @param student the student record to register
+ * @return true if registration succeeds, otherwise false
+ */
     public boolean addStudent(Student student) {
         if (isStudentListFull() || findStudent(student.getRegNo()) != null) {
             return false;
