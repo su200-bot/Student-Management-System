@@ -107,9 +107,15 @@ public class StudentManager {
         }
         return copy;
     }
-
-    /** Search 1: students whose registration number, name or course code contains the keyword. */
-    public Student[] searchStudents(String keyword) {
+        /**
+ * Searches for students using a keyword.
+ * The keyword is compared against the student's registration
+ * number, name and course code.
+ *
+ * @param keyword the text used to search for students
+ * @return an array containing all matching students
+ */
+        public Student[] searchStudents(String keyword) {
         String key = keyword.toLowerCase();
         Student[] found = new Student[studentCount];
         int n = 0;
