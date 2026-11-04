@@ -25,10 +25,17 @@ private static final String[] GRADE_LABELS = {
    
 
     // ----- Attributes: arrays that hold the objects -----
-    private Student[] students;
-    private int studentCount;
-    private Course[] courses;
-    private int courseCount;
+    // Array that stores registered student objects.
+private Student[] students;
+
+// Keeps track of the number of students currently registered.
+private int studentCount;
+
+// Array that stores available course objects.
+private Course[] courses;
+
+// Keeps track of the number of courses currently registered.
+private int courseCount;
 
     /** Creates empty arrays. */
     public StudentManager() {
