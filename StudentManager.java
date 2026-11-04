@@ -37,13 +37,18 @@ private Course[] courses;
 // Keeps track of the number of courses currently registered.
 private int courseCount;
 
-    /** Creates empty arrays. */
-    public StudentManager() {
-        students = new Student[MAX_STUDENTS];
-        studentCount = 0;
-        courses = new Course[MAX_COURSES];
-        courseCount = 0;
-    }
+    /**
+ * Initializes the StudentManager.
+ * Creates arrays for storing students and courses
+ * and sets their initial counts to zero.
+ */
+public StudentManager() {
+    students = new Student[MAX_STUDENTS];
+    studentCount = 0;
+    courses = new Course[MAX_COURSES];
+    courseCount = 0;
+}
+    
 
     // =====================================================================
     //  STUDENT OPERATIONS
