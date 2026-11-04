@@ -12,7 +12,7 @@
  *     4. MADETE HECTOR         - 24/U/25933/EVE
  *     5. ANYINE ELIZABETH      - 25/U/29497/EVE
  *
- *  GitHub Repository : <PASTE YOUR GROUP'S GITHUB LINK HERE>
+ *  GitHub Repository : https://github.com/su200-bot/Student-Management-System
  *
  *  Description:
  *     A simple Java Swing application that lets a university administrator

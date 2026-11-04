@@ -25,10 +25,16 @@ public class StudentManagementGUI {
     private JTextField nameField;
     private JTextField ageField;
     private JTextField searchField;
-    private JTextField[] markFields = new JTextField[Student.NUM_SUBJECTS];
+    private final JTextField[] markFields = new JTextField[Student.NUM_SUBJECTS];
     private JComboBox<Course> courseBox;
     private DefaultTableModel studentModel;
     private JTable studentTable;
+
+    // Registration number of the student currently loaded into the form (null = nobody loaded).
+    // The Update button uses this, so it still works after the table is refreshed.
+    private String selectedRegNo = null;
+    // True while the table is being rebuilt, so that re-selecting a row does not overwrite the form.
+    private boolean refreshingTable = false;
 
     // ----- Courses tab components -----
     private JTextField courseCodeField;
@@ -90,7 +96,7 @@ public class StudentManagementGUI {
         regNoField = new JTextField();
         nameField = new JTextField();
         ageField = new JTextField();
-        courseBox = new JComboBox<Course>();
+        courseBox = new JComboBox<>();
         for (int i = 0; i < markFields.length; i++) {
             markFields[i] = new JTextField();
         }
@@ -191,7 +197,7 @@ public class StudentManagementGUI {
             JOptionPane.showMessageDialog(frame, manager.getStatistics(), "Class Statistics",
                     JOptionPane.INFORMATION_MESSAGE));
         studentTable.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
+            if (!e.getValueIsAdjusting() && !refreshingTable) {
                 fillFormFromSelectedRow();
             }
         });
@@ -306,8 +312,8 @@ public class StudentManagementGUI {
     }
 
     private void updateStudent() {
-        if (studentTable.getSelectedRow() < 0) {
-            showError("Select a student in the table first.");
+        if (selectedRegNo == null) {
+            showError("Click a student in the table first, then edit the details and press Update.");
             return;
         }
         Student student = readStudentForm();
@@ -354,12 +360,13 @@ public class StudentManagementGUI {
     }
 
     private void clearForm() {
+        selectedRegNo = null;
         regNoField.setText("");
         regNoField.setEditable(true);
         nameField.setText("");
         ageField.setText("");
-        for (int i = 0; i < markFields.length; i++) {
-            markFields[i].setText("");
+        for (JTextField field : markFields) {
+            field.setText("");
         }
         studentTable.clearSelection();
     }
@@ -374,6 +381,7 @@ public class StudentManagementGUI {
         if (s == null) {
             return;
         }
+        selectedRegNo = s.getRegNo();
         regNoField.setText(s.getRegNo());
         regNoField.setEditable(false);          // the registration number identifies the student
         nameField.setText(s.getName());
@@ -391,6 +399,7 @@ public class StudentManagementGUI {
 
     /** Fills the students table with the given array of students. */
     private void showStudents(Student[] list) {
+        refreshingTable = true;
         studentModel.setRowCount(0);
         for (int i = 0; i < list.length; i++) {
             Student s = list[i];
@@ -402,6 +411,13 @@ public class StudentManagementGUI {
                 s.getGrade(), s.getRemark(), s.getStatus()
             });
         }
+        // keep the student being edited highlighted (if he/she is in this list)
+        for (int i = 0; i < list.length; i++) {
+            if (list[i].getRegNo().equals(selectedRegNo)) {
+                studentTable.setRowSelectionInterval(i, i);
+            }
+        }
+        refreshingTable = false;
     }
 
     // =====================================================================
@@ -458,17 +474,14 @@ public class StudentManagementGUI {
 
     private void refreshCourseBox() {
         courseBox.removeAllItems();
-        Course[] list = manager.getCourses();
-        for (int i = 0; i < list.length; i++) {
-            courseBox.addItem(list[i]);
+        for (Course course : manager.getCourses()) {
+            courseBox.addItem(course);
         }
     }
 
     private void refreshCourseTable() {
         courseModel.setRowCount(0);
-        Course[] list = manager.getCourses();
-        for (int i = 0; i < list.length; i++) {
-            Course c = list[i];
+        for (Course c : manager.getCourses()) {
             courseModel.addRow(new Object[] {
                 c.getCourseCode(), c.getCourseName(), c.getCreditUnits(), c.getLecturer(),
                 manager.countEnrolled(c.getCourseCode())
