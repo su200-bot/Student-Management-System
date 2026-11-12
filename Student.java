@@ -47,14 +47,17 @@ public class Student {
      * @param marks      An array of three subject marks (each between 0 and 100)
      */
     public Student(String regNo, String name, int age, String courseCode, double[] marks) {
-        this.regNo = (regNo != null && !regNo.isBlank()) ? regNo : "N/A";
-        this.name = setName(name) ? name.trim() : "Unknown";
-        this.age = setAge(age) ? age : 18;
-        this.courseCode = (courseCode != null && !courseCode.isBlank()) ? courseCode : "N/A";
-        
-        this.marks = new double[NUM_SUBJECTS];
-        setMarks(marks); // Reuses setter validation and defensive copying
+    setRegNo(regNo);
+    setName(name); // Uses validation logic
+    setAge(age);   // Uses validation logic
+    setCourseCode(courseCode);
+    
+    this.marks = new double[NUM_SUBJECTS];
+    if (!setMarks(marks)) {
+        // Fallback or default marks if invalid array passed
+        java.util.Arrays.fill(this.marks, 0.0);
     }
+}
 
     // ----- Getters -----
 
