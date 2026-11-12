@@ -172,84 +172,9 @@ public class StudentManager {
         students[j] = temp;
     }
 
-    private double sumOfAverages(int index) {
-        if (index >= studentCount) {
-            return 0;
-        }
-        return students[index].getAverage() + sumOfAverages(index + 1);
-    }
-
-    public double getClassAverage() {
-        return (studentCount == 0) ? 0.0 : sumOfAverages(0) / studentCount;
-    }
-
-    public int countPassed() {
-        int passed = 0;
-        for (int i = 0; i < studentCount; i++) {
-            if ("PASS".equals(students[i].getStatus())) {
-                passed++;
-            }
-        }
-        return passed;
-    }
-
-    public int countByGrade(String grade) {
-        if (grade == null) {
-            return 0;
-        }
-        int count = 0;
-        for (int i = 0; i < studentCount; i++) {
-            if (students[i].getGrade().equalsIgnoreCase(grade)) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    public int countFailed() {
-        return studentCount - countPassed();
-    }
-
-    public String getStatistics() {
-        if (studentCount == 0) {
-            return "No students have been registered yet.";
-        }
-
-        int best = 0;
-        int worst = 0;
-        for (int i = 1; i < studentCount; i++) {
-            if (students[i].getAverage() > students[best].getAverage()) {
-                best = i;
-            }
-            if (students[i].getAverage() < students[worst].getAverage()) {
-                worst = i;
-            }
-        }
-
-        int passed = countPassed();
-        int failed = countFailed();
-        double passRate = (passed * 100.0) / studentCount;
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("=== CLASS PERFORMANCE SUMMARY ===\n\n");
-        sb.append(String.format("Total Students : %d%n", studentCount));
-        sb.append(String.format("Class Average  : %.2f%%%n", getClassAverage()));
-        sb.append(String.format("Passed / Failed: %d Passed, %d Failed (%.1f%% Pass Rate)%n%n",
-                passed, failed, passRate));
-        sb.append(String.format("Top Student    : %s (%s) - %.2f%%%n",
-                students[best].getName(), students[best].getRegNo(), students[best].getAverage()));
-        sb.append(String.format("Lowest Student : %s (%s) - %.2f%%%n%n",
-                students[worst].getName(), students[worst].getRegNo(), students[worst].getAverage()));
-
-        for (String grade : GRADE_LABELS) {
-            int gradeCount = countByGrade(grade);
-            if (gradeCount > 0) {
-                sb.append(String.format("%s : %d%n", grade, gradeCount));
-            }
-        }
-
-        return sb.toString();
-    }
+    // =====================================================================
+    //  COURSE OPERATIONS
+    // =====================================================================
 
     public boolean addCourse(Course course) {
         if (course == null || isCourseListFull() || findCourse(course.getCourseCode()) != null) {
@@ -291,6 +216,9 @@ public class StudentManager {
     }
 
     public boolean deleteCourse(String courseCode) {
+        if (countEnrolled(courseCode) > 0) {
+            return false;
+        }
         int index = findCourseIndex(courseCode);
         if (index == -1) {
             return false;
@@ -302,23 +230,131 @@ public class StudentManager {
         return true;
     }
 
+    public int countEnrolled(String courseCode) {
+        if (courseCode == null || courseCode.isBlank()) {
+            return 0;
+        }
+        int count = 0;
+        for (int i = 0; i < studentCount; i++) {
+            if (students[i].getCourseCode().equalsIgnoreCase(courseCode.trim())) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     public Course[] getCourses() {
         return Arrays.copyOf(courses, courseCount);
     }
 
+    // =====================================================================
+    //  STATISTICS
+    // =====================================================================
+
+    private double sumOfAverages(int index) {
+        if (index >= studentCount) {
+            return 0;
+        }
+        return students[index].getAverage() + sumOfAverages(index + 1);
+    }
+
+    public double getClassAverage() {
+        return (studentCount == 0) ? 0.0 : sumOfAverages(0) / studentCount;
+    }
+
+    public int countPassed() {
+        int passed = 0;
+        for (int i = 0; i < studentCount; i++) {
+            if ("PASS".equals(students[i].getStatus())) {
+                passed++;
+            }
+        }
+        return passed;
+    }
+
+    public int countFailed() {
+        return studentCount - countPassed();
+    }
+
+    public int countByGrade(String grade) {
+        if (grade == null) {
+            return 0;
+        }
+        int count = 0;
+        for (int i = 0; i < studentCount; i++) {
+            if (students[i].getGrade().equalsIgnoreCase(grade)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public String getStatistics() {
+        if (studentCount == 0) {
+            return "No students have been registered yet.";
+        }
+
+        int best = 0;
+        int worst = 0;
+        for (int i = 1; i < studentCount; i++) {
+            if (students[i].getAverage() > students[best].getAverage()) {
+                best = i;
+            }
+            if (students[i].getAverage() < students[worst].getAverage()) {
+                worst = i;
+            }
+        }
+
+        int passed = countPassed();
+        int failed = countFailed();
+        double passRate = (passed * 100.0) / studentCount;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== CLASS PERFORMANCE SUMMARY ===\n\n");
+        sb.append(String.format("Total Students : %d%n", studentCount));
+        sb.append(String.format("Class Average  : %.2f%%%n", getClassAverage()));
+        sb.append(String.format("Passed / Failed: %d Passed, %d Failed (%.1f%% Pass Rate)%n%n",
+                passed, failed, passRate));
+        sb.append(String.format("Top Student    : %s (%s) - %.2f%%%n",
+                students[best].getName(), students[best].getRegNo(), students[best].getAverage()));
+        sb.append(String.format("Lowest Student : %s (%s) - %.2f%%%n%n",
+                students[worst].getName(), students[worst].getRegNo(), students[worst].getAverage()));
+        
+        sb.append("Grade Distribution:\n");
+        for (String label : GRADE_LABELS) {
+            sb.append(String.format("   %s : %d%n", label, countByGrade(label)));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Loads sample course and student records for testing and demonstration.
+     */
     public void loadSampleData() {
         if (courseCount != 0 || studentCount != 0) {
             return;
         }
 
-        addCourse(new Course("CS101", "Introduction to Programming", 3, "Dr. Aisha Kato"));
-        addCourse(new Course("CS102", "Data Structures", 3, "Prof. Ocen"));
-        addCourse(new Course("CS103", "Discrete Mathematics", 3, "Dr. Nandutu"));
-        addCourse(new Course("CS104", "Object Oriented Programming", 4, "Mr. Kintu"));
+        addCourse(new Course("CSC1102", "Structured and Object-Oriented Programming", 4, "Dr. Lillian Muyama"));
+        addCourse(new Course("CSC1105", "Mathematics for Computer Science", 4, "To be assigned"));
+        addCourse(new Course("BIT1101", "Introduction to Information Technology", 3, "To be assigned"));
 
-        addStudent(new Student("U/2024/101", "Alice Nakate", 20, "CS101", new double[]{78, 82, 88}));
-        addStudent(new Student("U/2024/102", "Brian Okello", 21, "CS102", new double[]{68, 74, 83}));
-        addStudent(new Student("U/2024/103", "Cynthia Atim", 19, "CS103", new double[]{52, 60, 58}));
-        addStudent(new Student("U/2024/104", "Daniel Kizza", 22, "CS104", new double[]{85, 90, 93}));
+        String[] names = {"Namukasa Grace", "Okello Brian", "Nakato Ruth", "Ssebunya David", "Atim Patricia", "Mugisha Joel", "Nabirye Esther", "Kiiza Samuel"};
+        String[] codes = {"CSC1102", "CSC1102", "CSC1105", "CSC1105", "BIT1101", "CSC1102", "BIT1101", "CSC1105"};
+        double[][] marksArray = {
+            {85.0, 78.0, 91.0},
+            {62.0, 58.0, 70.0},
+            {74.0, 69.0, 80.0},
+            {45.0, 52.0, 38.0},
+            {90.0, 88.0, 94.0},
+            {55.0, 61.0, 49.0},
+            {67.0, 72.0, 64.0},
+            {30.0, 41.0, 35.0}
+        };
+
+        for (int i = 0; i < names.length; i++) {
+            String regNo = String.format("25/U/0%d/EVE", 101 + i);
+            addStudent(new Student(regNo, names[i], 18 + (i % 4), codes[i], marksArray[i]));
+        }
     }
 }
