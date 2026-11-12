@@ -1,66 +1,43 @@
-import java.util.Arrays;
-
 /**
- * Represents a university student and tracks their performance across three subjects.
- * <p>
- * Demonstrates core Java and OOP concepts:
- * <ul>
- *   <li>Encapsulation using private fields, defensive array copying, and validated setters</li>
- *   <li>Constructor chaining via the {@code this} keyword and method overloading ({@code setMarks})</li>
- *   <li>Control flow using loops, {@code if-else-if} ladders, {@code switch} fall-through, and the ternary operator</li>
- * </ul>
- *
- * @author Your Name
- * @version 1.1
+ * Student - represents one student and his/her marks in three subjects.
+ * Demonstrates: encapsulation (private attributes + getters/setters),
+ * constructor overloading with the this keyword, method overloading (setMarks),
+ * an array attribute (marks), loops, if-else-if, switch and the ? : operator.
  */
 public class Student {
 
-    // ----- Constants -----
+    // ----- Constants (static final) -----
     public static final int NUM_SUBJECTS = 3;
     public static final double PASS_MARK = 50.0;
-    public static final double MIN_MARK = 0.0;
-    public static final double MAX_MARK = 100.0;
 
-    // ----- Attributes -----
+    // ----- Attributes (encapsulated: private) -----
     private String regNo;
     private String name;
     private int age;
     private String courseCode;
-    private double[] marks;
+    private double[] marks;          // marks in the three subjects (0 - 100)
 
     // ----- Constructors -----
 
-    /**
-     * Default constructor. Initializes attributes with safe placeholder defaults.
-     */
+    /** Default constructor: assigns default values (calls the other constructor using this). */
     public Student() {
-        this("N/A", "Unknown", 18, "N/A", new double[NUM_SUBJECTS]);
+        this("N/A", "Unknown", 0, "N/A", new double[NUM_SUBJECTS]);
     }
 
-    /**
-     * Parameterized constructor. Initializes all student attributes with validation.
-     *
-     * @param regNo      The student's registration number
-     * @param name       The student's full name
-     * @param age        The student's age (must be between 16 and 100)
-     * @param courseCode The code of the enrolled course
-     * @param marks      An array of three subject marks (each between 0 and 100)
-     */
+    /** Parameterized constructor: initialises all attributes. */
     public Student(String regNo, String name, int age, String courseCode, double[] marks) {
-    setRegNo(regNo);
-    setName(name); // Uses validation logic
-    setAge(age);   // Uses validation logic
-    setCourseCode(courseCode);
-    
-    this.marks = new double[NUM_SUBJECTS];
-    if (!setMarks(marks)) {
-        // Fallback or default marks if invalid array passed
-        java.util.Arrays.fill(this.marks, 0.0);
+        this.regNo = regNo;
+        this.name = name;
+        this.age = age;
+        this.courseCode = courseCode;
+        this.marks = new double[NUM_SUBJECTS];
+        // copy the marks into our own array so nobody outside can change them by accident
+        for (int i = 0; i < NUM_SUBJECTS && i < marks.length; i++) {
+            this.marks[i] = marks[i];
+        }
     }
-}
 
     // ----- Getters -----
-
     public String getRegNo() {
         return regNo;
     }
@@ -77,28 +54,23 @@ public class Student {
         return courseCode;
     }
 
-    /**
-     * Returns a defensive copy of the marks array to protect internal state.
-     *
-     * @return A copy of the student's marks
-     */
+    /** Returns a COPY of the marks array so the original stays protected (encapsulation). */
     public double[] getMarks() {
-        return Arrays.copyOf(marks, NUM_SUBJECTS);
+        double[] copy = new double[NUM_SUBJECTS];
+        for (int i = 0; i < NUM_SUBJECTS; i++) {
+            copy[i] = marks[i];
+        }
+        return copy;
     }
 
-    // ----- Setters -----
-
-    public boolean setRegNo(String regNo) {
-        if (regNo != null && !regNo.isBlank()) {
-            this.regNo = regNo.trim();
-            return true;
-        }
-        return false;
+    // ----- Setters (the ones that validate return true/false) -----
+    public void setRegNo(String regNo) {
+        this.regNo = regNo;
     }
 
     public boolean setName(String name) {
-        if (name != null && !name.isBlank()) {
-            this.name = name.trim();
+        if (name != null && name.trim().length() > 0) {
+            this.name = name;
             return true;
         }
         return false;
@@ -112,92 +84,72 @@ public class Student {
         return false;
     }
 
-    public boolean setCourseCode(String courseCode) {
-        if (courseCode != null && !courseCode.isBlank()) {
-            this.courseCode = courseCode.trim();
-            return true;
-        }
-        return false;
+    public void setCourseCode(String courseCode) {
+        this.courseCode = courseCode;
     }
 
-    /**
-     * Updates all three subject marks if the array is valid and all scores are within 0–100.
-     *
-     * @param newMarks Array containing exactly three valid marks
-     * @return {@code true} if marks were updated; {@code false} otherwise
-     */
+    /** Sets all three marks from an array. Every mark must be between 0 and 100. */
     public boolean setMarks(double[] newMarks) {
         if (newMarks == null || newMarks.length != NUM_SUBJECTS) {
             return false;
         }
-        for (double mark : newMarks) {
-            if (mark < MIN_MARK || mark > MAX_MARK) {
+        for (int i = 0; i < newMarks.length; i++) {
+            if (newMarks[i] < 0 || newMarks[i] > 100) {
                 return false;
             }
         }
-        this.marks = Arrays.copyOf(newMarks, NUM_SUBJECTS);
+        for (int i = 0; i < NUM_SUBJECTS; i++) {
+            marks[i] = newMarks[i];
+        }
         return true;
     }
 
-    /**
-     * Overloaded setter to update marks using three individual arguments.
-     *
-     * @param mark1 First subject mark
-     * @param mark2 Second subject mark
-     * @param mark3 Third subject mark
-     * @return {@code true} if all marks are valid and updated; {@code false} otherwise
-     */
+    /** Overloaded version: sets the three marks from three separate values. */
     public boolean setMarks(double mark1, double mark2, double mark3) {
-        return setMarks(new double[]{mark1, mark2, mark3});
+        return setMarks(new double[] { mark1, mark2, mark3 });
     }
 
     // ----- Calculations -----
 
-    /**
-     * Calculates the sum of all subject marks.
-     *
-     * @return Total marks scored
-     */
+    /** Total of the three marks (uses a loop). */
     public double getTotal() {
         double total = 0;
-        for (double mark : marks) {
-            total += mark;
+        for (int i = 0; i < NUM_SUBJECTS; i++) {
+            total += marks[i];
         }
         return total;
     }
 
-    /**
-     * Calculates the arithmetic mean of the subject marks.
-     *
-     * @return Average mark
-     */
+    /** Average of the three marks. */
     public double getAverage() {
         return getTotal() / NUM_SUBJECTS;
     }
 
-    /**
-     * Determines the letter grade using the Makerere University grading scale.
-     *
-     * @return Letter grade from A to F
-     */
+    /** Letter grade worked out with an if-else-if ladder (Makerere-style scale). */
     public String getGrade() {
         double avg = getAverage();
-        if (avg >= 80) return "A";
-        if (avg >= 75) return "B+";
-        if (avg >= 70) return "B";
-        if (avg >= 65) return "C+";
-        if (avg >= 60) return "C";
-        if (avg >= 55) return "D+";
-        if (avg >= 50) return "D";
-        if (avg >= 45) return "E";
-        return "F";
+        if (avg >= 80) {
+            return "A";
+        } else if (avg >= 75) {
+            return "B+";
+        } else if (avg >= 70) {
+            return "B";
+        } else if (avg >= 65) {
+            return "C+";
+        } else if (avg >= 60) {
+            return "C";
+        } else if (avg >= 55) {
+            return "D+";
+        } else if (avg >= 50) {
+            return "D";
+        } else if (avg >= 45) {
+            return "E";
+        } else {
+            return "F";
+        }
     }
 
-    /**
-     * Maps the student's letter grade to a descriptive academic remark.
-     *
-     * @return Performance remark
-     */
+    /** Remark for the grade, worked out with a switch statement (with fall-through). */
     public String getRemark() {
         switch (getGrade()) {
             case "A":
@@ -219,18 +171,13 @@ public class Student {
         }
     }
 
-    /**
-     * Determines whether the student passed or failed overall.
-     *
-     * @return {@code "PASS"} if average is at least {@link #PASS_MARK}, otherwise {@code "FAIL"}
-     */
+    /** PASS if the average reaches the pass mark, otherwise FAIL (conditional operator). */
     public String getStatus() {
         return (getAverage() >= PASS_MARK) ? "PASS" : "FAIL";
     }
 
     @Override
     public String toString() {
-        return String.format("%s | %s | %s | Avg: %.1f (%s - %s)",
-                regNo, name, courseCode, getAverage(), getGrade(), getStatus());
+        return regNo + " | " + name + " | " + courseCode;
     }
 }

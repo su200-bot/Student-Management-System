@@ -1,13 +1,7 @@
-
 /**
- * Represents an academic course unit offered by the university.
- * <p>
- * This class models core course details and demonstrates key Java OOP concepts:
- * <ul>
- *   <li>Encapsulation via private attributes, getters, and setters</li>
- *   <li>Object initialization using overloaded constructors and the {@code this} keyword</li>
- *   <li>String representation by overriding {@link Object#toString()}</li>
- * </ul>
+ * Course - represents one course unit offered by the university.
+ * Demonstrates: private attributes, overloaded constructors, this keyword,
+ * getters and setters, and a toString() method.
  */
 public class Course {
 

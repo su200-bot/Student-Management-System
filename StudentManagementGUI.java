@@ -1,35 +1,26 @@
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 /**
- * Provides the Swing graphical user interface for the Student Management System.
- * <p>
- * Demonstrates event-driven programming using lambda {@code ActionListener}s,
- * MVC-style separation by delegating data operations to {@link StudentManager},
- * and custom Swing table/form layouts.
- *
- * @author Your Name
- * @version 1.1
+ * StudentManagementGUI - the Swing user interface of the system.
+ * Demonstrates: event-driven programming (ActionListeners written as lambdas),
+ * creating and using objects of our own classes, and calling their methods.
+ * All data is kept in the StudentManager (which stores the arrays).
  */
 public class StudentManagementGUI {
 
-    // ----- Theme Colors & Fonts -----
     private static final Color NAVY = new Color(0x1F, 0x2A, 0x44);
     private static final Color GOLD = new Color(0xC9, 0xA2, 0x27);
-    private static final Color PASS_COLOR = new Color(0x1E, 0x7E, 0x34);
-    private static final Color FAIL_COLOR = new Color(0xC8, 0x23, 0x33);
-    private static final Font BANNER_FONT = new Font("SansSerif", Font.BOLD, 22);
 
-    // ----- Data Controller -----
+    // ----- The object that stores all the data -----
     private final StudentManager manager;
 
-    // ----- Main Window & Shared Components -----
+    // ----- Main window and shared components -----
     private JFrame frame;
     private JLabel statusLabel;
 
-    // ----- Students Tab Components -----
+    // ----- Students tab components -----
     private JTextField regNoField;
     private JTextField nameField;
     private JTextField ageField;
@@ -39,10 +30,13 @@ public class StudentManagementGUI {
     private DefaultTableModel studentModel;
     private JTable studentTable;
 
+    // Registration number of the student currently loaded into the form (null = nobody loaded).
+    // The Update button uses this, so it still works after the table is refreshed.
     private String selectedRegNo = null;
+    // True while the table is being rebuilt, so that re-selecting a row does not overwrite the form.
     private boolean refreshingTable = false;
 
-    // ----- Courses Tab Components -----
+    // ----- Courses tab components -----
     private JTextField courseCodeField;
     private JTextField courseNameField;
     private JTextField creditField;
@@ -50,9 +44,7 @@ public class StudentManagementGUI {
     private DefaultTableModel courseModel;
     private JTable courseTable;
 
-    /**
-     * Initializes the manager, loads sample records, builds the UI, and displays the window.
-     */
+    /** Builds the whole interface and shows the window. */
     public StudentManagementGUI() {
         manager = new StudentManager();
         manager.loadSampleData();
@@ -72,7 +64,6 @@ public class StudentManagementGUI {
         frame = new JFrame("Student Management System - CSC 1102 Practical Project");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(1180, 700);
-        frame.setMinimumSize(new Dimension(950, 600));
         frame.setLocationRelativeTo(null);
         frame.setLayout(new BorderLayout());
 
@@ -81,7 +72,7 @@ public class StudentManagementGUI {
         banner.setOpaque(true);
         banner.setBackground(NAVY);
         banner.setForeground(GOLD);
-        banner.setFont(BANNER_FONT);
+        banner.setFont(new Font("SansSerif", Font.BOLD, 22));
         banner.setBorder(BorderFactory.createEmptyBorder(12, 8, 12, 8));
         frame.add(banner, BorderLayout.NORTH);
 
@@ -93,10 +84,7 @@ public class StudentManagementGUI {
 
         // Status bar
         statusLabel = new JLabel(" ");
-        statusLabel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY),
-                BorderFactory.createEmptyBorder(6, 10, 6, 10)
-        ));
+        statusLabel.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
         frame.add(statusLabel, BorderLayout.SOUTH);
     }
 
@@ -114,37 +102,33 @@ public class StudentManagementGUI {
         }
 
         JPanel form = new JPanel(new GridBagLayout());
-        form.setBorder(BorderFactory.createTitledBorder("Student Details"));
-
-        // Row 0: Reg No, Name, Age
+        form.setBorder(BorderFactory.createTitledBorder("Student details"));
+        // row 0: reg no, name, age
         place(form, new JLabel("Reg. No:"), 0, 0, 1, 0);
         place(form, regNoField, 1, 0, 1, 1);
-        place(form, new JLabel("Full Name:"), 2, 0, 1, 0);
+        place(form, new JLabel("Full name:"), 2, 0, 1, 0);
         place(form, nameField, 3, 0, 1, 2);
         place(form, new JLabel("Age:"), 4, 0, 1, 0);
         place(form, ageField, 5, 0, 1, 0.5);
-
-        // Row 1: Subject Marks
+        // row 1: the three marks
         for (int i = 0; i < markFields.length; i++) {
             place(form, new JLabel("Mark " + (i + 1) + " (0-100):"), i * 2, 1, 1, 0);
             place(form, markFields[i], i * 2 + 1, 1, 1, 1);
         }
-
-        // Row 2: Course Dropdown
+        // row 2: course drop-down (wide so the full course name is visible)
         place(form, new JLabel("Course:"), 0, 2, 1, 0);
         place(form, courseBox, 1, 2, 5, 1);
 
-        // ---- Action Buttons ----
-        JButton addBtn = createStyledButton("Add Student", NAVY, Color.WHITE);
+        // ---- Buttons ----
+        JButton addBtn = new JButton("Add Student");
         JButton updateBtn = new JButton("Update Selected");
         JButton deleteBtn = new JButton("Delete Selected");
         JButton clearBtn = new JButton("Clear Form");
-        JButton statsBtn = new JButton("Statistics");
-
         JButton searchBtn = new JButton("Search");
         JButton showAllBtn = new JButton("Show All");
         JButton sortAvgBtn = new JButton("Sort by Average");
         JButton sortNameBtn = new JButton("Sort by Name");
+        JButton statsBtn = new JButton("Statistics");
         searchField = new JTextField(16);
 
         JPanel row1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
@@ -155,7 +139,7 @@ public class StudentManagementGUI {
         row1.add(statsBtn);
 
         JPanel row2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
-        row2.add(new JLabel("Search (Reg No, Name, or Course):"));
+        row2.add(new JLabel("Search (reg no, name or course):"));
         row2.add(searchField);
         row2.add(searchBtn);
         row2.add(showAllBtn);
@@ -172,97 +156,53 @@ public class StudentManagementGUI {
         panel.add(top, BorderLayout.NORTH);
 
         // ---- Table ----
-        String[] columns = {
-            "No.", "Reg. No", "Name", "Age", "Course",
-            "Mark 1", "Mark 2", "Mark 3", "Total", "Average", "Grade", "Remark", "Status"
-        };
+        String[] columns = { "No.", "Reg. No", "Name", "Age", "Course", "Mark 1", "Mark 2", "Mark 3",
+                             "Total", "Average", "Grade", "Remark", "Status" };
         studentModel = new DefaultTableModel(columns, 0);
         studentTable = new JTable(studentModel);
-        styleTable(studentTable);
-        configureStudentTableColumns();
+        studentTable.setDefaultEditor(Object.class, null);      // cells cannot be edited by typing
+        studentTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        studentTable.setRowHeight(24);
+        studentTable.getTableHeader().setBackground(NAVY);
+        studentTable.getTableHeader().setForeground(Color.WHITE);
+        studentTable.getColumnModel().getColumn(0).setPreferredWidth(40);
+        studentTable.getColumnModel().getColumn(1).setPreferredWidth(130);
+        studentTable.getColumnModel().getColumn(2).setPreferredWidth(150);
+        studentTable.getColumnModel().getColumn(11).setPreferredWidth(110);
         panel.add(new JScrollPane(studentTable), BorderLayout.CENTER);
 
-        // ---- Event Listeners ----
+        // ---- Events ----
         addBtn.addActionListener(e -> addStudent());
         updateBtn.addActionListener(e -> updateStudent());
         deleteBtn.addActionListener(e -> deleteStudent());
         clearBtn.addActionListener(e -> clearForm());
-        statsBtn.addActionListener(e -> showStatistics());
         searchBtn.addActionListener(e -> searchStudents());
         searchField.addActionListener(e -> searchStudents());
-
         showAllBtn.addActionListener(e -> {
             searchField.setText("");
             showStudents(manager.getStudents());
             setStatus("Showing all " + manager.getStudentCount() + " students.");
         });
-
         sortAvgBtn.addActionListener(e -> {
             manager.sortByAverage();
             showStudents(manager.getStudents());
             setStatus("Students sorted by average (highest first).");
         });
-
         sortNameBtn.addActionListener(e -> {
             manager.sortByName();
             showStudents(manager.getStudents());
             setStatus("Students sorted alphabetically by name.");
         });
-
+        statsBtn.addActionListener(e ->
+            JOptionPane.showMessageDialog(frame, manager.getStatistics(), "Class Statistics",
+                    JOptionPane.INFORMATION_MESSAGE));
         studentTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && !refreshingTable) {
-                loadSelectedStudentIntoForm();
+                fillFormFromSelectedRow();
             }
         });
-
         return panel;
     }
-
-    // =====================================================================
-    //  UI HELPER METHODS
-    // =====================================================================
-
-    private void styleTable(JTable table) {
-        table.setDefaultEditor(Object.class, null);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setRowHeight(24);
-        table.getTableHeader().setBackground(NAVY);
-        table.getTableHeader().setForeground(Color.WHITE);
-        table.getTableHeader().setReorderingAllowed(false);
-    }
-
-    private void configureStudentTableColumns() {
-        studentTable.getColumnModel().getColumn(0).setPreferredWidth(40);
-        studentTable.getColumnModel().getColumn(1).setPreferredWidth(130);
-        studentTable.getColumnModel().getColumn(2).setPreferredWidth(150);
-        studentTable.getColumnModel().getColumn(11).setPreferredWidth(110);
-
-        // Color-code the Status column (index 12) for PASS / FAIL
-        studentTable.getColumnModel().getColumn(12).setCellRenderer(new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value,
-                    boolean isSelected, boolean hasFocus, int row, int column) {
-                Component c = super.getTableCellRendererComponent(
-                        table, value, isSelected, hasFocus, row, column);
-                setHorizontalAlignment(SwingConstants.CENTER);
-                if (!isSelected && value != null) {
-                    setFont(getFont().deriveFont(Font.BOLD));
-                    if ("PASS".equalsIgnoreCase(value.toString())) {
-                        c.setForeground(PASS_COLOR);
-                    } else if ("FAIL".equalsIgnoreCase(value.toString())) {
-                        c.setForeground(FAIL_COLOR);
-                    } else {
-                        c.setForeground(table.getForeground());
-                    }
-                }
-                return c;
-            }
-        });
-    }
-
-    // =====================================================================
-    //  COURSES TAB
-    // =====================================================================
 
     private JPanel buildCoursesPanel() {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
@@ -273,304 +213,305 @@ public class StudentManagementGUI {
         creditField = new JTextField();
         lecturerField = new JTextField();
 
-        JPanel form = new JPanel(new GridBagLayout());
-        form.setBorder(BorderFactory.createTitledBorder("Course Details"));
+        JPanel form = new JPanel(new GridLayout(1, 8, 8, 8));
+        form.setBorder(BorderFactory.createTitledBorder("Course details"));
+        form.add(new JLabel("Course code:"));
+        form.add(courseCodeField);
+        form.add(new JLabel("Course name:"));
+        form.add(courseNameField);
+        form.add(new JLabel("Credit units:"));
+        form.add(creditField);
+        form.add(new JLabel("Lecturer:"));
+        form.add(lecturerField);
 
-        place(form, new JLabel("Course Code:"), 0, 0, 1, 0);
-        place(form, courseCodeField, 1, 0, 1, 1);
-        place(form, new JLabel("Course Name:"), 2, 0, 1, 0);
-        place(form, courseNameField, 3, 0, 3, 2);
-
-        place(form, new JLabel("Credits:"), 0, 1, 1, 0);
-        place(form, creditField, 1, 1, 1, 1);
-        place(form, new JLabel("Lecturer:"), 2, 1, 1, 0);
-        place(form, lecturerField, 3, 1, 3, 1);
-
-        JButton addCourseBtn = createStyledButton("Add Course", NAVY, Color.WHITE);
-        JButton deleteCourseBtn = new JButton("Delete Course");
-        JButton clearCourseBtn = new JButton("Clear Form");
-
-        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
-        row.add(addCourseBtn);
-        row.add(deleteCourseBtn);
-        row.add(clearCourseBtn);
+        JButton addCourseBtn = new JButton("Add Course");
+        JButton deleteCourseBtn = new JButton("Delete Selected Course");
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+        buttons.add(addCourseBtn);
+        buttons.add(deleteCourseBtn);
 
         JPanel top = new JPanel(new BorderLayout());
         top.add(form, BorderLayout.NORTH);
-        top.add(row, BorderLayout.SOUTH);
+        top.add(buttons, BorderLayout.SOUTH);
         panel.add(top, BorderLayout.NORTH);
 
-        String[] columns = {"Course Code", "Course Name", "Credits", "Lecturer", "Enrolled Students"};
+        String[] columns = { "Code", "Course name", "Credit units", "Lecturer", "Students enrolled" };
         courseModel = new DefaultTableModel(columns, 0);
         courseTable = new JTable(courseModel);
-        styleTable(courseTable);
+        courseTable.setDefaultEditor(Object.class, null);
+        courseTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        courseTable.setRowHeight(24);
+        courseTable.getTableHeader().setBackground(NAVY);
+        courseTable.getTableHeader().setForeground(Color.WHITE);
+        courseTable.getColumnModel().getColumn(1).setPreferredWidth(360);
         panel.add(new JScrollPane(courseTable), BorderLayout.CENTER);
 
         addCourseBtn.addActionListener(e -> addCourse());
         deleteCourseBtn.addActionListener(e -> deleteCourse());
-        clearCourseBtn.addActionListener(e -> clearCourseForm());
-
         return panel;
     }
 
-    private void refreshCourseBox() {
-        if (courseBox == null) return;
-        courseBox.removeAllItems();
-        Course[] courses = manager.getCourses();
-        for (Course c : courses) {
-            courseBox.addItem(c);
+    // =====================================================================
+    //  STUDENT ACTIONS
+    // =====================================================================
+
+    /** Reads and validates the form. Returns a Student object, or null after showing an error. */
+    private Student readStudentForm() {
+        String regNo = Validator.cleanText(regNoField.getText()).toUpperCase();
+        if (regNo.length() == 0 || regNo.contains(" ")) {
+            return showError("Enter a registration number without spaces, e.g. 24/U/03151/EVE.");
         }
-    }
 
-    private void refreshCourseTable() {
-        if (courseModel == null) return;
-        courseModel.setRowCount(0);
-        Course[] courses = manager.getCourses();
-        for (Course c : courses) {
-            int enrolled = manager.countEnrolled(c.getCourseCode());
-            courseModel.addRow(new Object[]{
-                c.getCourseCode(),
-                c.getCourseName(),
-                c.getCreditUnits(),
-                c.getLecturer(),
-                enrolled
-            });
+        String name = Validator.cleanText(nameField.getText());
+        if (!Validator.isValidName(name)) {
+            return showError("Enter a valid full name (letters only).");
         }
-    }
 
-    private void addCourse() {
-        try {
-            String code = courseCodeField.getText();
-            String name = courseNameField.getText();
-            int credits = Integer.parseInt(creditField.getText());
-            String lecturer = lecturerField.getText();
+        String ageText = Validator.cleanText(ageField.getText());
+        if (!Validator.isWholeNumber(ageText, 3) || !Validator.isInRange(Integer.parseInt(ageText), 16, 100)) {
+            return showError("Age must be a whole number between 16 and 100.");
+        }
 
-            Course course = new Course(code, name, credits, lecturer);
-            if (manager.addCourse(course)) {
-                refreshCourseBox();
-                refreshCourseTable();
-                setStatus("Course added successfully: " + code);
-                clearCourseForm();
-            } else {
-                JOptionPane.showMessageDialog(frame, "Error: Course code already exists or list is full.", "Add Failed", JOptionPane.ERROR_MESSAGE);
+        Course course = (Course) courseBox.getSelectedItem();
+        if (course == null) {
+            return showError("Add a course first (Courses tab), then select it.");
+        }
+
+        double[] marks = new double[Student.NUM_SUBJECTS];
+        for (int i = 0; i < marks.length; i++) {
+            String text = Validator.cleanText(markFields[i].getText());
+            if (!Validator.isDecimalNumber(text) || !Validator.isInRange(Double.parseDouble(text), 0, 100)) {
+                return showError("Mark " + (i + 1) + " must be a number between 0 and 100.");
             }
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(frame, "Please enter a valid number for credit units.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            marks[i] = Double.parseDouble(text);
         }
+        return new Student(regNo, name, Integer.parseInt(ageText), course.getCourseCode(), marks);
     }
 
-    private void deleteCourse() {
-        int selectedRow = courseTable.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(frame, "Please select a course to delete from the table.", "No Selection", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        String code = (String) courseModel.getValueAt(selectedRow, 0);
-        if (manager.deleteCourse(code)) {
-            refreshCourseBox();
-            refreshCourseTable();
-            setStatus("Course deleted: " + code);
-        } else {
-            JOptionPane.showMessageDialog(frame, "Cannot delete course because students are currently enrolled.", "Delete Failed", JOptionPane.WARNING_MESSAGE);
-        }
-    }
-
-    private void clearCourseForm() {
-        courseCodeField.setText("");
-        courseNameField.setText("");
-        creditField.setText("");
-        lecturerField.setText("");
-    }
-
-    // =====================================================================
-    //  STUDENT ACTIONS & TABLE UPDATES
-    // =====================================================================
-
-    private void showStudents(Student[] students) {
-        refreshingTable = true;
-        studentModel.setRowCount(0);
-        for (int i = 0; i < students.length; i++) {
-            Student s = students[i];
-            double[] marks = s.getMarks();
-            studentModel.addRow(new Object[]{
-                (i + 1),
-                s.getRegNo(),
-                s.getName(),
-                s.getAge(),
-                s.getCourseCode(),
-                marks.length > 0 ? marks[0] : 0.0,
-                marks.length > 1 ? marks[1] : 0.0,
-                marks.length > 2 ? marks[2] : 0.0,
-                s.getTotal(),
-                String.format("%.1f", s.getAverage()),
-                s.getGrade(),
-                s.getRemark(),
-                s.getStatus()
-            });
-        }
-        refreshingTable = false;
-        selectedRegNo = null;
-        studentTable.clearSelection();
+    private Student showError(String message) {
+        JOptionPane.showMessageDialog(frame, message, "Invalid input", JOptionPane.WARNING_MESSAGE);
+        return null;
     }
 
     private void addStudent() {
-        try {
-            String regNo = regNoField.getText();
-            String name = nameField.getText();
-            int age = Integer.parseInt(ageField.getText());
-            Course selectedCourse = (Course) courseBox.getSelectedItem();
-            String courseCode = (selectedCourse != null) ? selectedCourse.getCourseCode() : "N/A";
-
-            double[] marks = new double[Student.NUM_SUBJECTS];
-            for (int i = 0; i < Student.NUM_SUBJECTS; i++) {
-                marks[i] = Double.parseDouble(markFields[i].getText());
-            }
-
-            Student s = new Student(regNo, name, age, courseCode, marks);
-            if (manager.addStudent(s)) {
-                showStudents(manager.getStudents());
-                refreshCourseTable();
-                setStatus("Student added successfully: " + regNo);
-                clearForm();
-            } else {
-                JOptionPane.showMessageDialog(frame, "Registration number already exists or list is full.", "Add Failed", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(frame, "Please enter valid numeric values for age and marks.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        Student student = readStudentForm();
+        if (student == null) {
+            return;
+        }
+        if (manager.isStudentListFull()) {
+            showError("The system is full (" + StudentManager.MAX_STUDENTS + " students).");
+        } else if (!manager.addStudent(student)) {
+            showError("A student with registration number " + student.getRegNo() + " already exists.");
+        } else {
+            searchField.setText("");
+            showStudents(manager.getStudents());
+            refreshCourseTable();
+            clearForm();
+            setStatus(student.getName() + " was added successfully.");
         }
     }
 
     private void updateStudent() {
         if (selectedRegNo == null) {
-            JOptionPane.showMessageDialog(frame, "Please select a student from the table to update.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            showError("Click a student in the table first, then edit the details and press Update.");
             return;
         }
-        try {
-            String regNo = regNoField.getText();
-            String name = nameField.getText();
-            int age = Integer.parseInt(ageField.getText());
-            Course selectedCourse = (Course) courseBox.getSelectedItem();
-            String courseCode = (selectedCourse != null) ? selectedCourse.getCourseCode() : "N/A";
-
-            double[] marks = new double[Student.NUM_SUBJECTS];
-            for (int i = 0; i < Student.NUM_SUBJECTS; i++) {
-                marks[i] = Double.parseDouble(markFields[i].getText());
-            }
-
-            Student updated = new Student(regNo, name, age, courseCode, marks);
-            if (manager.updateStudent(updated)) {
-                showStudents(manager.getStudents());
-                refreshCourseTable();
-                setStatus("Student updated successfully: " + regNo);
-            } else {
-                JOptionPane.showMessageDialog(frame, "Student record could not be updated.", "Update Failed", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(frame, "Please enter valid numeric values for age and marks.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        Student student = readStudentForm();
+        if (student == null) {
+            return;
+        }
+        if (manager.updateStudent(student)) {
+            showStudents(manager.getStudents());
+            refreshCourseTable();
+            setStatus(student.getName() + " was updated.");
+        } else {
+            showError("Student not found.");
         }
     }
 
     private void deleteStudent() {
-        if (selectedRegNo == null) {
-            JOptionPane.showMessageDialog(frame, "Please select a student from the table to delete.", "No Selection", JOptionPane.WARNING_MESSAGE);
+        int row = studentTable.getSelectedRow();
+        if (row < 0) {
+            showError("Select a student in the table first.");
             return;
         }
-        int confirm = JOptionPane.showConfirmDialog(frame, "Are you sure you want to delete student: " + selectedRegNo + "?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            if (manager.deleteStudent(selectedRegNo)) {
-                showStudents(manager.getStudents());
-                refreshCourseTable();
-                setStatus("Student deleted: " + selectedRegNo);
-                clearForm();
-            } else {
-                JOptionPane.showMessageDialog(frame, "Student could not be found for deletion.", "Delete Failed", JOptionPane.ERROR_MESSAGE);
-            }
+        String regNo = studentModel.getValueAt(row, 1).toString();
+        int choice = JOptionPane.showConfirmDialog(frame, "Delete student " + regNo + "?",
+                "Confirm delete", JOptionPane.YES_NO_OPTION);
+        if (choice == JOptionPane.YES_OPTION) {
+            manager.deleteStudent(regNo);
+            clearForm();
+            showStudents(manager.getStudents());
+            refreshCourseTable();
+            setStatus("Student " + regNo + " was deleted.");
         }
     }
 
+    private void searchStudents() {
+        String keyword = Validator.cleanText(searchField.getText());
+        if (keyword.length() == 0) {
+            showStudents(manager.getStudents());
+            setStatus("Showing all " + manager.getStudentCount() + " students.");
+            return;
+        }
+        Student[] results = manager.searchStudents(keyword);
+        showStudents(results);
+        setStatus(results.length + " student(s) found for \"" + keyword + "\".");
+    }
+
     private void clearForm() {
+        selectedRegNo = null;
         regNoField.setText("");
+        regNoField.setEditable(true);
         nameField.setText("");
         ageField.setText("");
         for (JTextField field : markFields) {
             field.setText("");
         }
-        if (courseBox.getItemCount() > 0) {
-            courseBox.setSelectedIndex(0);
-        }
         studentTable.clearSelection();
-        selectedRegNo = null;
-        regNoField.setEnabled(true);
     }
 
-    private void searchStudents() {
-        String query = searchField.getText();
-        Student[] results = manager.searchStudents(query);
-        showStudents(results);
-        setStatus("Found " + results.length + " matching student(s).");
-    }
-
-    private void showStatistics() {
-        String stats = manager.getStatistics();
-        JOptionPane.showMessageDialog(frame, stats, "Class Statistics & Performance Summary", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private void loadSelectedStudentIntoForm() {
+    /** When a table row is clicked, copy that student's details into the form. */
+    private void fillFormFromSelectedRow() {
         int row = studentTable.getSelectedRow();
-        if (row == -1) return;
-        selectedRegNo = (String) studentModel.getValueAt(row, 1);
-        Student s = manager.findStudent(selectedRegNo);
-        if (s != null) {
-            regNoField.setText(s.getRegNo());
-            regNoField.setEnabled(false); // Prevent modifying primary key ID during edit
-            nameField.setText(s.getName());
-            ageField.setText(String.valueOf(s.getAge()));
-            
-            double[] marks = s.getMarks();
-            for (int i = 0; i < markFields.length; i++) {
-                markFields[i].setText(String.valueOf(marks[i]));
+        if (row < 0) {
+            return;
+        }
+        Student s = manager.findStudent(studentModel.getValueAt(row, 1).toString());
+        if (s == null) {
+            return;
+        }
+        selectedRegNo = s.getRegNo();
+        regNoField.setText(s.getRegNo());
+        regNoField.setEditable(false);          // the registration number identifies the student
+        nameField.setText(s.getName());
+        ageField.setText(String.valueOf(s.getAge()));
+        double[] marks = s.getMarks();
+        for (int i = 0; i < marks.length; i++) {
+            markFields[i].setText(format(marks[i]));
+        }
+        for (int i = 0; i < courseBox.getItemCount(); i++) {
+            if (courseBox.getItemAt(i).getCourseCode().equalsIgnoreCase(s.getCourseCode())) {
+                courseBox.setSelectedIndex(i);
             }
+        }
+    }
 
-            for (int i = 0; i < courseBox.getItemCount(); i++) {
-                Course c = courseBox.getItemAt(i);
-                if (c.getCourseCode().equalsIgnoreCase(s.getCourseCode())) {
-                    courseBox.setSelectedIndex(i);
-                    break;
-                }
+    /** Fills the students table with the given array of students. */
+    private void showStudents(Student[] list) {
+        refreshingTable = true;
+        studentModel.setRowCount(0);
+        for (int i = 0; i < list.length; i++) {
+            Student s = list[i];
+            double[] m = s.getMarks();
+            studentModel.addRow(new Object[] {
+                i + 1, s.getRegNo(), s.getName(), s.getAge(), s.getCourseCode(),
+                format(m[0]), format(m[1]), format(m[2]),
+                format(s.getTotal()), String.format("%.1f", s.getAverage()),
+                s.getGrade(), s.getRemark(), s.getStatus()
+            });
+        }
+        // keep the student being edited highlighted (if he/she is in this list)
+        for (int i = 0; i < list.length; i++) {
+            if (list[i].getRegNo().equals(selectedRegNo)) {
+                studentTable.setRowSelectionInterval(i, i);
             }
-            setStatus("Loaded student: " + s.getName());
+        }
+        refreshingTable = false;
+    }
+
+    // =====================================================================
+    //  COURSE ACTIONS
+    // =====================================================================
+
+    private void addCourse() {
+        String code = Validator.cleanText(courseCodeField.getText()).toUpperCase();
+        String name = Validator.cleanText(courseNameField.getText());
+        String creditText = Validator.cleanText(creditField.getText());
+        String lecturer = Validator.cleanText(lecturerField.getText());
+
+        if (code.length() == 0 || code.contains(" ")) {
+            showError("Enter a course code without spaces, e.g. CSC1102.");
+        } else if (name.length() == 0) {
+            showError("Enter the course name.");
+        } else if (!Validator.isWholeNumber(creditText, 2)
+                || !Validator.isInRange(Integer.parseInt(creditText), 1, 10)) {
+            showError("Credit units must be a whole number from 1 to 10.");
+        } else {
+            if (lecturer.length() == 0) {
+                lecturer = "To be assigned";
+            }
+            Course course = new Course(code, name, Integer.parseInt(creditText), lecturer);
+            if (manager.addCourse(course)) {
+                refreshCourseBox();
+                refreshCourseTable();
+                courseCodeField.setText("");
+                courseNameField.setText("");
+                creditField.setText("");
+                lecturerField.setText("");
+                setStatus("Course " + code + " was added.");
+            } else {
+                showError("The course list is full or the code " + code + " already exists.");
+            }
+        }
+    }
+
+    private void deleteCourse() {
+        int row = courseTable.getSelectedRow();
+        if (row < 0) {
+            showError("Select a course in the table first.");
+            return;
+        }
+        String code = courseModel.getValueAt(row, 0).toString();
+        if (manager.deleteCourse(code)) {
+            refreshCourseBox();
+            refreshCourseTable();
+            setStatus("Course " + code + " was deleted.");
+        } else {
+            showError("Course " + code + " cannot be deleted because students are enrolled in it.");
+        }
+    }
+
+    private void refreshCourseBox() {
+        courseBox.removeAllItems();
+        for (Course course : manager.getCourses()) {
+            courseBox.addItem(course);
+        }
+    }
+
+    private void refreshCourseTable() {
+        courseModel.setRowCount(0);
+        for (Course c : manager.getCourses()) {
+            courseModel.addRow(new Object[] {
+                c.getCourseCode(), c.getCourseName(), c.getCreditUnits(), c.getLecturer(),
+                manager.countEnrolled(c.getCourseCode())
+            });
         }
     }
 
     // =====================================================================
-    //  LAYOUT HELPERS
+    //  SMALL HELPERS
     // =====================================================================
 
-    private void place(JPanel panel, Component comp, int x, int y, int width, double weightx) {
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = x;
-        gbc.gridy = y;
-        gbc.gridwidth = width;
-        gbc.gridheight = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(4, 4, 4, 4);
-        gbc.weightx = weightx;
-        gbc.weighty = 0.0;
-        panel.add(comp, gbc);
-    }
-
-    private JButton createStyledButton(String text, Color bg, Color fg) {
-        JButton btn = new JButton(text);
-        btn.setBackground(bg);
-        btn.setForeground(fg);
-        btn.setFocusPainted(false);
-        btn.setFont(new Font("SansSerif", Font.BOLD, 12));
-        return btn;
+    /** Places a component in a GridBagLayout cell (column x, row y, spanning w columns). */
+    private void place(JPanel panel, Component c, int x, int y, int w, double weightX) {
+        GridBagConstraints g = new GridBagConstraints();
+        g.gridx = x;
+        g.gridy = y;
+        g.gridwidth = w;
+        g.weightx = weightX;
+        g.fill = GridBagConstraints.HORIZONTAL;
+        g.insets = new Insets(4, 6, 4, 6);
+        g.anchor = GridBagConstraints.WEST;
+        panel.add(c, g);
     }
 
     private void setStatus(String message) {
-        if (statusLabel != null) {
-            statusLabel.setText(" " + message);
-        }
+        statusLabel.setText(message);
+    }
+
+    /** Shows 85.0 as "85" and 72.5 as "72.5". */
+    private String format(double value) {
+        return (value == (long) value) ? String.valueOf((long) value) : String.valueOf(value);
     }
 }

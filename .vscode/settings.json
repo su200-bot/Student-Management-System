@@ -1,7 +1,0 @@
-{
-  "java.project.resourceFilters": [
-    "node_modules",
-    "\\.git",
-    "Student-Management-System"
-  ]
-}

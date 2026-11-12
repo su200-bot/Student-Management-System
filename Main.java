@@ -1,64 +1,42 @@
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-
-/**
- * Entry point for the <b>CSC 1102: Structured and Object-Oriented Programming</b>
- * Practical Exam Project — <i>Student Management System</i>.
- * <p>
- * This Java Swing desktop application enables university administrators to register
- * students, record subject marks, compute totals, averages, and grades, manage courses,
- * search and sort records, and view class performance statistics.
+/*
+ * ============================================================================
+ *  CSC 1102: Structured and Object-Oriented Programming
+ *  PRACTICAL EXAM PROJECT - STUDENT MANAGEMENT SYSTEM
+ * ============================================================================
+ *  Group Leader : AKELLO SUNDAY OBONYO (24/U/03151/EVE)
  *
- * <h3>Project Architecture</h3>
- * <ul>
- *   <li>{@link Main} – Application entry point and Swing EDT launcher</li>
- *   <li>{@link StudentManagementGUI} – Swing graphical user interface and event handling</li>
- *   <li>{@link StudentManager} – Data controller managing {@code Student[]} and {@code Course[]} arrays</li>
- *   <li>{@link Student} – Entity class modeling student details and academic calculations</li>
- *   <li>{@link Course} – Entity class modeling university course units</li>
- *   <li>{@link Validator} – Utility class for validating user inputs</li>
- * </ul>
+ *  Group Members:
+ *     1. LOMER FRANCIS PETER   - 25/U/26198/EVE
+ *     2. MAYANJA JUDITH        - 25/U/28752/EVE
+ *     3. AKELLO SUNDAY OBONYO  - 24/U/03151/EVE   (Group Leader)
+ *     4. MADETE HECTOR         - 24/U/25933/EVE
+ *     5. ANYINE ELIZABETH      - 25/U/29497/EVE
  *
- * <h3>Group Members</h3>
- * <ol>
- *   <li>LOMER FRANCIS PETER (25/U/26198/EVE)</li>
- *   <li>MAYANJA JUDITH (25/U/28752/EVE)</li>
- *   <li>AKELLO SUNDAY OBONYO (24/U/03151/EVE) — <i>Group Leader</i></li>
- *   <li>MADETE HECTOR (24/U/25933/EVE)</li>
- *   <li>ANYINE ELIZABETH (25/U/29497/EVE)</li>
- * </ol>
+ *  GitHub Repository : <PASTE YOUR GROUP'S GITHUB LINK HERE>
  *
- * <h3>Build &amp; Run Instructions (JDK 17+)</h3>
- * <pre>
- *   javac *.java
- *   java Main
- * </pre>
+ *  Description:
+ *     A simple Java Swing application that lets a university administrator
+ *     register students, record their marks, calculate totals / averages /
+ *     grades, manage courses, search and sort students, and view statistics.
  *
- * @author LOMER Francis Peter
- * @author AKELLO Sunday Obonyo (Group Leader)
- * @author MAYANJA Judith
- * @author MADETE Hector
- * @author ANYINE Elizabeth
- * @version 1.1
- * @see <a href="https://github.com/su200-bot/Student-Management-System">GitHub Repository</a>
+ *  Files in this project:
+ *     Main.java                   - entry point (this file)
+ *     StudentManagementGUI.java   - Swing user interface (event handling)
+ *     StudentManager.java         - stores and manages the Student[] and Course[] arrays
+ *     Student.java                - entity class: one student
+ *     Course.java                 - entity class: one course
+ *     Validator.java              - utility class for validating user input
+ *
+ *  How to compile and run (from the project folder):
+ *     javac *.java
+ *     java Main
+ * ============================================================================
  */
 public class Main {
 
-    /**
-     * Launches the Student Management System GUI safely on the Swing
-     * Event Dispatch Thread (EDT).
-     *
-     * @param args command-line arguments (not used)
-     */
     public static void main(String[] args) {
-        // Apply the operating system's native Look & Feel for a cleaner modern UI
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {
-            // Fall back to Java's default Metal Look & Feel if unavailable
-        }
-
-        // Create and display the GUI on the Event Dispatch Thread
-        SwingUtilities.invokeLater(StudentManagementGUI::new);
+        // Swing programs should create their windows on the Event Dispatch Thread.
+        // The lambda below is the same style used in Lecture 1 (event-driven programming).
+        javax.swing.SwingUtilities.invokeLater(() -> new StudentManagementGUI());
     }
 }

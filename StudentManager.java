@@ -1,29 +1,22 @@
-import java.util.Arrays;
-
 /**
- * Manages collections of {@link Student} and {@link Course} objects using fixed-size arrays.
- * <p>
- * Demonstrates core data-structure and algorithm concepts:
- * <ul>
- *   <li>Encapsulation and defensive array trimming ({@link Arrays#copyOf})</li>
- *   <li>CRUD operations (add, linear search, update, shift-delete)</li>
- *   <li>Method overloading ({@code searchStudents}), recursion ({@code sumOfAverages}), and optimized bubble sort</li>
- * </ul>
- *
- * @author LOMER Francis Peter
- * @version 1.1
+ * StudentManager - stores and manages all Student and Course objects.
+ * Demonstrates: arrays of objects (Student[] and Course[]), loops, method
+ * overloading (searchStudents), recursion (sumOfAverages), sorting, encapsulation.
  */
 public class StudentManager {
 
+    // ----- Constants -----
     public static final int MAX_STUDENTS = 100;
     public static final int MAX_COURSES = 20;
-    private static final String[] GRADE_LABELS = {"A", "B+", "B", "C+", "C", "D+", "D", "E", "F"};
+    private static final String[] GRADE_LABELS = { "A", "B+", "B", "C+", "C", "D+", "D", "E", "F" };
 
-    private final Student[] students;
+    // ----- Attributes: arrays that hold the objects -----
+    private Student[] students;
     private int studentCount;
-    private final Course[] courses;
+    private Course[] courses;
     private int courseCount;
 
+    /** Creates empty arrays. */
     public StudentManager() {
         students = new Student[MAX_STUDENTS];
         studentCount = 0;
@@ -31,51 +24,49 @@ public class StudentManager {
         courseCount = 0;
     }
 
+    // =====================================================================
+    //  STUDENT OPERATIONS
+    // =====================================================================
+
     public int getStudentCount() {
         return studentCount;
-    }
-
-    public int getCourseCount() {
-        return courseCount;
     }
 
     public boolean isStudentListFull() {
         return studentCount >= MAX_STUDENTS;
     }
 
-    public boolean isCourseListFull() {
-        return courseCount >= MAX_COURSES;
-    }
-
+    /** Adds a student. Returns false if the array is full or the registration number already exists. */
     public boolean addStudent(Student student) {
-        if (student == null || isStudentListFull() || findStudent(student.getRegNo()) != null) {
+        if (isStudentListFull() || findStudent(student.getRegNo()) != null) {
             return false;
         }
-        students[studentCount++] = student;
+        students[studentCount] = student;
+        studentCount++;
         return true;
     }
 
+    /** Finds a student by registration number (ignoring upper/lower case). Returns null if not found. */
     public Student findStudent(String regNo) {
         int index = findStudentIndex(regNo);
-        return (index == -1) ? null : students[index];
+        if (index == -1) {
+            return null;
+        }
+        return students[index];
     }
 
+    /** Linear search through the array. Returns the position, or -1 if not found. */
     private int findStudentIndex(String regNo) {
-        if (regNo == null || regNo.isBlank()) {
-            return -1;
-        }
         for (int i = 0; i < studentCount; i++) {
-            if (students[i].getRegNo().equalsIgnoreCase(regNo.trim())) {
+            if (students[i].getRegNo().equalsIgnoreCase(regNo)) {
                 return i;
             }
         }
         return -1;
     }
 
+    /** Replaces the details of the student who has the same registration number. */
     public boolean updateStudent(Student updated) {
-        if (updated == null || updated.getRegNo() == null || updated.getRegNo().isBlank()) {
-            return false;
-        }
         Student existing = findStudent(updated.getRegNo());
         if (existing == null) {
             return false;
@@ -87,6 +78,7 @@ public class StudentManager {
         return true;
     }
 
+    /** Deletes a student and shifts the remaining students one place to the left. */
     public boolean deleteStudent(String regNo) {
         int index = findStudentIndex(regNo);
         if (index == -1) {
@@ -95,19 +87,23 @@ public class StudentManager {
         for (int i = index; i < studentCount - 1; i++) {
             students[i] = students[i + 1];
         }
-        students[--studentCount] = null;
+        studentCount--;
+        students[studentCount] = null;
         return true;
     }
 
+    /** Returns a copy of the stored students (without the empty slots). */
     public Student[] getStudents() {
-        return Arrays.copyOf(students, studentCount);
+        Student[] copy = new Student[studentCount];
+        for (int i = 0; i < studentCount; i++) {
+            copy[i] = students[i];
+        }
+        return copy;
     }
 
+    /** Search 1: students whose registration number, name or course code contains the keyword. */
     public Student[] searchStudents(String keyword) {
-        if (keyword == null || keyword.isBlank()) {
-            return getStudents();
-        }
-        String key = keyword.trim().toLowerCase();
+        String key = keyword.toLowerCase();
         Student[] found = new Student[studentCount];
         int n = 0;
         for (int i = 0; i < studentCount; i++) {
@@ -115,185 +111,108 @@ public class StudentManager {
             if (s.getRegNo().toLowerCase().contains(key)
                     || s.getName().toLowerCase().contains(key)
                     || s.getCourseCode().toLowerCase().contains(key)) {
-                found[n++] = s;
+                found[n] = s;
+                n++;
             }
         }
-        return Arrays.copyOf(found, n);
+        return trim(found, n);
     }
 
+    /** Search 2 (overloaded): students enrolled in a course whose average is at least minAverage. */
     public Student[] searchStudents(String courseCode, double minAverage) {
-        if (courseCode == null || courseCode.isBlank()) {
-            return new Student[0];
-        }
         Student[] found = new Student[studentCount];
         int n = 0;
         for (int i = 0; i < studentCount; i++) {
-            if (students[i].getCourseCode().equalsIgnoreCase(courseCode.trim())
+            if (students[i].getCourseCode().equalsIgnoreCase(courseCode)
                     && students[i].getAverage() >= minAverage) {
-                found[n++] = students[i];
+                found[n] = students[i];
+                n++;
             }
         }
-        return Arrays.copyOf(found, n);
+        return trim(found, n);
     }
 
+    /** Helper: copies the first n elements of an array into a new array of exactly n elements. */
+    private Student[] trim(Student[] source, int n) {
+        Student[] result = new Student[n];
+        for (int i = 0; i < n; i++) {
+            result[i] = source[i];
+        }
+        return result;
+    }
+
+    /** Bubble sort: highest average first. */
     public void sortByAverage() {
         for (int i = 0; i < studentCount - 1; i++) {
-            boolean swapped = false;
             for (int j = 0; j < studentCount - 1 - i; j++) {
                 if (students[j].getAverage() < students[j + 1].getAverage()) {
-                    swapStudents(j, j + 1);
-                    swapped = true;
+                    Student temp = students[j];
+                    students[j] = students[j + 1];
+                    students[j + 1] = temp;
                 }
-            }
-            if (!swapped) {
-                break;
             }
         }
     }
 
+    /** Bubble sort: alphabetical order of names (A to Z). */
     public void sortByName() {
         for (int i = 0; i < studentCount - 1; i++) {
-            boolean swapped = false;
             for (int j = 0; j < studentCount - 1 - i; j++) {
                 if (students[j].getName().compareToIgnoreCase(students[j + 1].getName()) > 0) {
-                    swapStudents(j, j + 1);
-                    swapped = true;
+                    Student temp = students[j];
+                    students[j] = students[j + 1];
+                    students[j + 1] = temp;
                 }
             }
-            if (!swapped) {
-                break;
-            }
         }
-    }
-
-    private void swapStudents(int i, int j) {
-        Student temp = students[i];
-        students[i] = students[j];
-        students[j] = temp;
-    }
-
-    // =====================================================================
-    //  COURSE OPERATIONS
-    // =====================================================================
-
-    public boolean addCourse(Course course) {
-        if (course == null || isCourseListFull() || findCourse(course.getCourseCode()) != null) {
-            return false;
-        }
-        courses[courseCount++] = course;
-        return true;
-    }
-
-    public Course findCourse(String courseCode) {
-        int index = findCourseIndex(courseCode);
-        return (index == -1) ? null : courses[index];
-    }
-
-    private int findCourseIndex(String courseCode) {
-        if (courseCode == null || courseCode.isBlank()) {
-            return -1;
-        }
-        for (int i = 0; i < courseCount; i++) {
-            if (courses[i].getCourseCode().equalsIgnoreCase(courseCode.trim())) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    public boolean updateCourse(Course updated) {
-        if (updated == null || updated.getCourseCode() == null || updated.getCourseCode().isBlank()) {
-            return false;
-        }
-        Course existing = findCourse(updated.getCourseCode());
-        if (existing == null) {
-            return false;
-        }
-        existing.setCourseName(updated.getCourseName());
-        existing.setCreditUnits(updated.getCreditUnits());
-        existing.setLecturer(updated.getLecturer());
-        return true;
-    }
-
-    public boolean deleteCourse(String courseCode) {
-        if (countEnrolled(courseCode) > 0) {
-            return false;
-        }
-        int index = findCourseIndex(courseCode);
-        if (index == -1) {
-            return false;
-        }
-        for (int i = index; i < courseCount - 1; i++) {
-            courses[i] = courses[i + 1];
-        }
-        courses[--courseCount] = null;
-        return true;
-    }
-
-    public int countEnrolled(String courseCode) {
-        if (courseCode == null || courseCode.isBlank()) {
-            return 0;
-        }
-        int count = 0;
-        for (int i = 0; i < studentCount; i++) {
-            if (students[i].getCourseCode().equalsIgnoreCase(courseCode.trim())) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    public Course[] getCourses() {
-        return Arrays.copyOf(courses, courseCount);
     }
 
     // =====================================================================
     //  STATISTICS
     // =====================================================================
 
+    /** Recursive method: adds the averages of all students from position index to the end. */
     private double sumOfAverages(int index) {
-        if (index >= studentCount) {
+        if (index >= studentCount) {          // halting condition
             return 0;
         }
         return students[index].getAverage() + sumOfAverages(index + 1);
     }
 
+    /** Average mark of the whole class (0 if there are no students). */
     public double getClassAverage() {
-        return (studentCount == 0) ? 0.0 : sumOfAverages(0) / studentCount;
+        if (studentCount == 0) {
+            return 0;
+        }
+        return sumOfAverages(0) / studentCount;
     }
 
     public int countPassed() {
         int passed = 0;
         for (int i = 0; i < studentCount; i++) {
-            if ("PASS".equals(students[i].getStatus())) {
+            if (students[i].getStatus().equals("PASS")) {
                 passed++;
             }
         }
         return passed;
     }
 
-    public int countFailed() {
-        return studentCount - countPassed();
-    }
-
+    /** How many students have the given letter grade. */
     public int countByGrade(String grade) {
-        if (grade == null) {
-            return 0;
-        }
         int count = 0;
         for (int i = 0; i < studentCount; i++) {
-            if (students[i].getGrade().equalsIgnoreCase(grade)) {
+            if (students[i].getGrade().equals(grade)) {
                 count++;
             }
         }
         return count;
     }
 
+    /** Builds a text report of class statistics for the GUI to display. */
     public String getStatistics() {
         if (studentCount == 0) {
             return "No students have been registered yet.";
         }
-
         int best = 0;
         int worst = 0;
         for (int i = 1; i < studentCount; i++) {
@@ -304,57 +223,114 @@ public class StudentManager {
                 worst = i;
             }
         }
-
         int passed = countPassed();
-        int failed = countFailed();
-        double passRate = (passed * 100.0) / studentCount;
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("=== CLASS PERFORMANCE SUMMARY ===\n\n");
-        sb.append(String.format("Total Students : %d%n", studentCount));
-        sb.append(String.format("Class Average  : %.2f%%%n", getClassAverage()));
-        sb.append(String.format("Passed / Failed: %d Passed, %d Failed (%.1f%% Pass Rate)%n%n",
-                passed, failed, passRate));
-        sb.append(String.format("Top Student    : %s (%s) - %.2f%%%n",
-                students[best].getName(), students[best].getRegNo(), students[best].getAverage()));
-        sb.append(String.format("Lowest Student : %s (%s) - %.2f%%%n%n",
-                students[worst].getName(), students[worst].getRegNo(), students[worst].getAverage()));
-        
-        sb.append("Grade Distribution:\n");
-        for (String label : GRADE_LABELS) {
-            sb.append(String.format("   %s : %d%n", label, countByGrade(label)));
+        StringBuilder report = new StringBuilder();
+        report.append("Total students      : ").append(studentCount).append("\n");
+        report.append("Class average       : ").append(String.format("%.2f", getClassAverage())).append("\n");
+        report.append("Highest average     : ").append(String.format("%.2f", students[best].getAverage()))
+                .append("  (").append(students[best].getName()).append(")\n");
+        report.append("Lowest average      : ").append(String.format("%.2f", students[worst].getAverage()))
+                .append("  (").append(students[worst].getName()).append(")\n");
+        report.append("Passed              : ").append(passed).append("\n");
+        report.append("Failed              : ").append(studentCount - passed).append("\n\n");
+        report.append("Grade distribution:\n");
+        for (String grade : GRADE_LABELS) {          // enhanced for loop
+            report.append("   ").append(grade).append("  :  ").append(countByGrade(grade)).append("\n");
         }
-        return sb.toString();
+        return report.toString();
     }
 
-    /**
-     * Loads sample course and student records for testing and demonstration.
-     */
-    public void loadSampleData() {
-        if (courseCount != 0 || studentCount != 0) {
-            return;
-        }
+    // =====================================================================
+    //  COURSE OPERATIONS
+    // =====================================================================
 
+    public int getCourseCount() {
+        return courseCount;
+    }
+
+    /** Adds a course. Returns false if the array is full or the course code already exists. */
+    public boolean addCourse(Course course) {
+        if (courseCount >= MAX_COURSES || findCourse(course.getCourseCode()) != null) {
+            return false;
+        }
+        courses[courseCount] = course;
+        courseCount++;
+        return true;
+    }
+
+    public Course findCourse(String courseCode) {
+        for (int i = 0; i < courseCount; i++) {
+            if (courses[i].getCourseCode().equalsIgnoreCase(courseCode)) {
+                return courses[i];
+            }
+        }
+        return null;
+    }
+
+    /** Number of students enrolled in a course. */
+    public int countEnrolled(String courseCode) {
+        int count = 0;
+        for (int i = 0; i < studentCount; i++) {
+            if (students[i].getCourseCode().equalsIgnoreCase(courseCode)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /** Deletes a course only if no student is enrolled in it. */
+    public boolean deleteCourse(String courseCode) {
+        if (countEnrolled(courseCode) > 0) {
+            return false;
+        }
+        int index = -1;
+        for (int i = 0; i < courseCount; i++) {
+            if (courses[i].getCourseCode().equalsIgnoreCase(courseCode)) {
+                index = i;
+            }
+        }
+        if (index == -1) {
+            return false;
+        }
+        for (int i = index; i < courseCount - 1; i++) {
+            courses[i] = courses[i + 1];
+        }
+        courseCount--;
+        courses[courseCount] = null;
+        return true;
+    }
+
+    /** Returns a copy of the stored courses (without the empty slots). */
+    public Course[] getCourses() {
+        Course[] copy = new Course[courseCount];
+        for (int i = 0; i < courseCount; i++) {
+            copy[i] = courses[i];
+        }
+        return copy;
+    }
+
+    // =====================================================================
+    //  SAMPLE DATA (so the system is not empty when it first opens)
+    // =====================================================================
+
+    public void loadSampleData() {
         addCourse(new Course("CSC1102", "Structured and Object-Oriented Programming", 4, "Dr. Lillian Muyama"));
         addCourse(new Course("CSC1105", "Mathematics for Computer Science", 4, "To be assigned"));
         addCourse(new Course("BIT1101", "Introduction to Information Technology", 3, "To be assigned"));
 
-        String[] names = {"Namukasa Grace", "Okello Brian", "Nakato Ruth", "Ssebunya David", "Atim Patricia", "Mugisha Joel", "Nabirye Esther", "Kiiza Samuel"};
-        String[] codes = {"CSC1102", "CSC1102", "CSC1105", "CSC1105", "BIT1101", "CSC1102", "BIT1101", "CSC1105"};
-        double[][] marksArray = {
-            {85.0, 78.0, 91.0},
-            {62.0, 58.0, 70.0},
-            {74.0, 69.0, 80.0},
-            {45.0, 52.0, 38.0},
-            {90.0, 88.0, 94.0},
-            {55.0, 61.0, 49.0},
-            {67.0, 72.0, 64.0},
-            {30.0, 41.0, 35.0}
+        String[] names = { "Namukasa Grace", "Okello Brian", "Nakato Ruth", "Ssebunya David",
+                           "Atim Patricia", "Mugisha Joel", "Nabirye Esther", "Kiiza Samuel" };
+        String[] codes = { "CSC1102", "CSC1102", "CSC1105", "CSC1105",
+                           "BIT1101", "CSC1102", "BIT1101", "CSC1105" };
+        double[][] sampleMarks = {
+            { 85, 78, 91 }, { 62, 58, 70 }, { 74, 69, 80 }, { 45, 52, 38 },
+            { 90, 88, 94 }, { 55, 61, 49 }, { 67, 72, 64 }, { 30, 41, 35 }
         };
 
         for (int i = 0; i < names.length; i++) {
-            String regNo = String.format("25/U/0%d/EVE", 101 + i);
-            addStudent(new Student(regNo, names[i], 18 + (i % 4), codes[i], marksArray[i]));
+            String regNo = "25/U/00" + (101 + i) + "/EVE";
+            addStudent(new Student(regNo, names[i], 18 + (i % 4), codes[i], sampleMarks[i]));
         }
     }
 }
