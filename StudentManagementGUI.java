@@ -4,8 +4,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 /**
- * Provides the Swing graphical user interface for the Student Management
- * System.
+ * Provides the Swing graphical user interface for the Student Management System.
  * <p>
  * Demonstrates event-driven programming using lambda {@code ActionListener}s,
  * MVC-style separation by delegating data operations to {@link StudentManager},
@@ -52,8 +51,7 @@ public class StudentManagementGUI {
     private JTable courseTable;
 
     /**
-     * Initializes the manager, loads sample records, builds the UI, and displays
-     * the window.
+     * Initializes the manager, loads sample records, builds the UI, and displays the window.
      */
     public StudentManagementGUI() {
         manager = new StudentManager();
@@ -67,7 +65,7 @@ public class StudentManagementGUI {
     }
 
     // =====================================================================
-    // BUILDING THE INTERFACE
+    //  BUILDING THE INTERFACE
     // =====================================================================
 
     private void buildInterface() {
@@ -97,7 +95,8 @@ public class StudentManagementGUI {
         statusLabel = new JLabel(" ");
         statusLabel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY),
-                BorderFactory.createEmptyBorder(6, 10, 6, 10)));
+                BorderFactory.createEmptyBorder(6, 10, 6, 10)
+        ));
         frame.add(statusLabel, BorderLayout.SOUTH);
     }
 
@@ -174,8 +173,8 @@ public class StudentManagementGUI {
 
         // ---- Table ----
         String[] columns = {
-                "No.", "Reg. No", "Name", "Age", "Course",
-                "Mark 1", "Mark 2", "Mark 3", "Total", "Average", "Grade", "Remark", "Status"
+            "No.", "Reg. No", "Name", "Age", "Course",
+            "Mark 1", "Mark 2", "Mark 3", "Total", "Average", "Grade", "Remark", "Status"
         };
         studentModel = new DefaultTableModel(columns, 0);
         studentTable = new JTable(studentModel);
@@ -220,7 +219,7 @@ public class StudentManagementGUI {
     }
 
     // =====================================================================
-    // UI HELPER METHODS
+    //  UI HELPER METHODS
     // =====================================================================
 
     private void styleTable(JTable table) {
@@ -262,7 +261,7 @@ public class StudentManagementGUI {
     }
 
     // =====================================================================
-    // COURSES TAB
+    //  COURSES TAB
     // =====================================================================
 
     private JPanel buildCoursesPanel() {
@@ -301,7 +300,7 @@ public class StudentManagementGUI {
         top.add(row, BorderLayout.SOUTH);
         panel.add(top, BorderLayout.NORTH);
 
-        String[] columns = { "Course Code", "Course Name", "Credits", "Lecturer", "Enrolled Students" };
+        String[] columns = {"Course Code", "Course Name", "Credits", "Lecturer", "Enrolled Students"};
         courseModel = new DefaultTableModel(columns, 0);
         courseTable = new JTable(courseModel);
         styleTable(courseTable);
@@ -315,8 +314,7 @@ public class StudentManagementGUI {
     }
 
     private void refreshCourseBox() {
-        if (courseBox == null)
-            return;
+        if (courseBox == null) return;
         courseBox.removeAllItems();
         Course[] courses = manager.getCourses();
         for (Course c : courses) {
@@ -325,18 +323,17 @@ public class StudentManagementGUI {
     }
 
     private void refreshCourseTable() {
-        if (courseModel == null)
-            return;
+        if (courseModel == null) return;
         courseModel.setRowCount(0);
         Course[] courses = manager.getCourses();
         for (Course c : courses) {
             int enrolled = manager.countEnrolled(c.getCourseCode());
-            courseModel.addRow(new Object[] {
-                    c.getCourseCode(),
-                    c.getCourseName(),
-                    c.getCreditUnits(),
-                    c.getLecturer(),
-                    enrolled
+            courseModel.addRow(new Object[]{
+                c.getCourseCode(),
+                c.getCourseName(),
+                c.getCreditUnits(),
+                c.getLecturer(),
+                enrolled
             });
         }
     }
@@ -355,20 +352,17 @@ public class StudentManagementGUI {
                 setStatus("Course added successfully: " + code);
                 clearCourseForm();
             } else {
-                JOptionPane.showMessageDialog(frame, "Error: Course code already exists or list is full.", "Add Failed",
-                        JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "Error: Course code already exists or list is full.", "Add Failed", JOptionPane.ERROR_MESSAGE);
             }
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(frame, "Please enter a valid number for credit units.", "Input Error",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Please enter a valid number for credit units.", "Input Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void deleteCourse() {
         int selectedRow = courseTable.getSelectedRow();
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(frame, "Please select a course to delete from the table.", "No Selection",
-                    JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Please select a course to delete from the table.", "No Selection", JOptionPane.WARNING_MESSAGE);
             return;
         }
         String code = (String) courseModel.getValueAt(selectedRow, 0);
@@ -377,8 +371,7 @@ public class StudentManagementGUI {
             refreshCourseTable();
             setStatus("Course deleted: " + code);
         } else {
-            JOptionPane.showMessageDialog(frame, "Cannot delete course because students are currently enrolled.",
-                    "Delete Failed", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Cannot delete course because students are currently enrolled.", "Delete Failed", JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -390,7 +383,7 @@ public class StudentManagementGUI {
     }
 
     // =====================================================================
-    // STUDENT ACTIONS & TABLE UPDATES
+    //  STUDENT ACTIONS & TABLE UPDATES
     // =====================================================================
 
     private void showStudents(Student[] students) {
@@ -399,20 +392,20 @@ public class StudentManagementGUI {
         for (int i = 0; i < students.length; i++) {
             Student s = students[i];
             double[] marks = s.getMarks();
-            studentModel.addRow(new Object[] {
-                    (i + 1),
-                    s.getRegNo(),
-                    s.getName(),
-                    s.getAge(),
-                    s.getCourseCode(),
-                    marks.length > 0 ? marks[0] : 0.0,
-                    marks.length > 1 ? marks[1] : 0.0,
-                    marks.length > 2 ? marks[2] : 0.0,
-                    s.getTotal(),
-                    String.format("%.1f", s.getAverage()),
-                    s.getGrade(),
-                    s.getRemark(),
-                    s.getStatus()
+            studentModel.addRow(new Object[]{
+                (i + 1),
+                s.getRegNo(),
+                s.getName(),
+                s.getAge(),
+                s.getCourseCode(),
+                marks.length > 0 ? marks[0] : 0.0,
+                marks.length > 1 ? marks[1] : 0.0,
+                marks.length > 2 ? marks[2] : 0.0,
+                s.getTotal(),
+                String.format("%.1f", s.getAverage()),
+                s.getGrade(),
+                s.getRemark(),
+                s.getStatus()
             });
         }
         refreshingTable = false;
@@ -440,19 +433,16 @@ public class StudentManagementGUI {
                 setStatus("Student added successfully: " + regNo);
                 clearForm();
             } else {
-                JOptionPane.showMessageDialog(frame, "Registration number already exists or list is full.",
-                        "Add Failed", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "Registration number already exists or list is full.", "Add Failed", JOptionPane.ERROR_MESSAGE);
             }
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(frame, "Please enter valid numeric values for age and marks.", "Input Error",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Please enter valid numeric values for age and marks.", "Input Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void updateStudent() {
         if (selectedRegNo == null) {
-            JOptionPane.showMessageDialog(frame, "Please select a student from the table to update.", "No Selection",
-                    JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Please select a student from the table to update.", "No Selection", JOptionPane.WARNING_MESSAGE);
             return;
         }
         try {
@@ -473,24 +463,19 @@ public class StudentManagementGUI {
                 refreshCourseTable();
                 setStatus("Student updated successfully: " + regNo);
             } else {
-                JOptionPane.showMessageDialog(frame, "Student record could not be updated.", "Update Failed",
-                        JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "Student record could not be updated.", "Update Failed", JOptionPane.ERROR_MESSAGE);
             }
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(frame, "Please enter valid numeric values for age and marks.", "Input Error",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Please enter valid numeric values for age and marks.", "Input Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void deleteStudent() {
         if (selectedRegNo == null) {
-            JOptionPane.showMessageDialog(frame, "Please select a student from the table to delete.", "No Selection",
-                    JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Please select a student from the table to delete.", "No Selection", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        int confirm = JOptionPane.showConfirmDialog(frame,
-                "Are you sure you want to delete student: " + selectedRegNo + "?", "Confirm Delete",
-                JOptionPane.YES_NO_OPTION);
+        int confirm = JOptionPane.showConfirmDialog(frame, "Are you sure you want to delete student: " + selectedRegNo + "?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
             if (manager.deleteStudent(selectedRegNo)) {
                 showStudents(manager.getStudents());
@@ -498,8 +483,7 @@ public class StudentManagementGUI {
                 setStatus("Student deleted: " + selectedRegNo);
                 clearForm();
             } else {
-                JOptionPane.showMessageDialog(frame, "Student could not be found for deletion.", "Delete Failed",
-                        JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "Student could not be found for deletion.", "Delete Failed", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -528,14 +512,12 @@ public class StudentManagementGUI {
 
     private void showStatistics() {
         String stats = manager.getStatistics();
-        JOptionPane.showMessageDialog(frame, stats, "Class Statistics & Performance Summary",
-                JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(frame, stats, "Class Statistics & Performance Summary", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void loadSelectedStudentIntoForm() {
         int row = studentTable.getSelectedRow();
-        if (row == -1)
-            return;
+        if (row == -1) return;
         selectedRegNo = (String) studentModel.getValueAt(row, 1);
         Student s = manager.findStudent(selectedRegNo);
         if (s != null) {
@@ -543,7 +525,7 @@ public class StudentManagementGUI {
             regNoField.setEnabled(false); // Prevent modifying primary key ID during edit
             nameField.setText(s.getName());
             ageField.setText(String.valueOf(s.getAge()));
-
+            
             double[] marks = s.getMarks();
             for (int i = 0; i < markFields.length; i++) {
                 markFields[i].setText(String.valueOf(marks[i]));
@@ -561,7 +543,7 @@ public class StudentManagementGUI {
     }
 
     // =====================================================================
-    // LAYOUT HELPERS
+    //  LAYOUT HELPERS
     // =====================================================================
 
     private void place(JPanel panel, Component comp, int x, int y, int width, double weightx) {
